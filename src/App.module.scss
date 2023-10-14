@@ -1,0 +1,22 @@
+.main {
+    height: 100%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.mainCreateMode {
+    cursor: pointer;
+}
+
+.container {
+    position: relative;
+    flex: 1;
+}
+
+.button {
+    padding: 15px;
+    background-color: blanchedalmond;
+    border-radius: 4px;
+    font-size: 16px;
+}
