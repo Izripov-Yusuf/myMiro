@@ -16,7 +16,6 @@ function App() {
   const [isDragging, setIsDragging] = useState(false)
 
   const currentId = useRef<number>()
-  console.log(1)
 
   const containerRef = useRef<HTMLDivElement>(null)
 
