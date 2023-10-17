@@ -1,0 +1,23 @@
+{
+  "printWidth": 120,
+  "overrides": [
+    {
+      "files": "*.{js,ts,jsx,tsx}",
+      "options": {
+        "singleQuote": true,
+        "quoteProps": "consistent",
+        "tabWidth": 4,
+        "trailingComma": "all"
+      }
+    },
+    {
+      "files": "*.css",
+      "options": {
+        "tabWidth": 4
+      }
+    },
+    {
+      "files": "*.{yaml,yml,json}"
+    }
+  ]
+}
