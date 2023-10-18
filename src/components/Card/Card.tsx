@@ -1,44 +1,76 @@
 import React, { useEffect, useState, useRef } from 'react';
 import styles from './Card.module.scss';
+import { UpdateCardPositionParams } from '../../App';
 
 interface CardProps {
-    clientX: number;
-    clientY: number;
+    positionX: number;
+    positionY: number;
     id: number;
-    isDragging: boolean;
-    handleOnMouseDown: (event: MouseEvent, id: number) => void;
-    handleOnMouseUp: (event: MouseEvent) => void;
+    updateCardPosition: ({ id, position }: UpdateCardPositionParams) => void;
 }
 
-const Card: React.FC<CardProps> = ({ id, clientX, clientY, isDragging, handleOnMouseDown, handleOnMouseUp }) => {
+const Card: React.FC<CardProps> = ({ id, positionX, positionY, updateCardPosition }) => {
     const [isEditText, setIsEditText] = useState(false);
     const [inputText, setInputText] = useState('');
+    const [isDragging, setIsDragging] = useState(false);
+    const [tempPosition, setTempPosition] = useState(() => {
+        return { positionX, positionY };
+    });
 
     const inputRef = useRef<HTMLInputElement>(null);
     const cardRef = useRef<HTMLDivElement>(null);
+    const coords = useRef({
+        startX: positionX,
+        startY: positionY,
+    });
 
     const handleDoubleClick = () => {
         setIsEditText(true);
     };
 
+    const handleOnMouseDown = (event: React.MouseEvent) => {
+        event.preventDefault();
+        setIsDragging(true);
+        setIsEditText(false);
+
+        const offsetX = event.clientX - tempPosition.positionX;
+        const offsetY = event.clientY - tempPosition.positionY;
+
+        coords.current.startX = offsetX;
+        coords.current.startY = offsetY;
+    };
+
+    const handleOnMouseUp = () => {
+        setIsDragging(false);
+        updateCardPosition({ id, position: tempPosition });
+    };
+
     useEffect(() => {
-        if (!cardRef.current) return;
+        const handleMouseMove = (event: MouseEvent) => {
+            if (!isDragging) return;
 
-        const card = cardRef.current;
-
-        const handleMouseDown = (event: MouseEvent) => {
-            handleOnMouseDown(event, id);
+            const newY = event.clientY - coords.current.startY;
+            const newX = event.clientX - coords.current.startX;
+            setTempPosition({
+                positionY: newY,
+                positionX: newX,
+            });
         };
 
-        card.addEventListener('mousedown', handleMouseDown);
-        card.addEventListener('mouseup', handleOnMouseUp);
+        if (!isDragging) {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleOnMouseUp);
+            return;
+        }
 
-        return () => {
-            card.removeEventListener('mousedown', handleMouseDown);
-            card.removeEventListener('mouseup', handleOnMouseUp);
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleOnMouseUp);
+
+        const cleanup = () => {
+            document.removeEventListener('mousemove', handleMouseMove);
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+        return cleanup;
+    }, [isDragging]);
 
     useEffect(() => {
         if (!isEditText) return;
@@ -48,16 +80,18 @@ const Card: React.FC<CardProps> = ({ id, clientX, clientY, isDragging, handleOnM
     return (
         <div
             style={{
-                top: `${clientY}px`,
-                left: `${clientX}px`,
+                top: `${tempPosition.positionY}px`,
+                left: `${tempPosition.positionX}px`,
                 cursor: isDragging ? 'grabbing' : 'grab',
             }}
             className={styles.box}
             ref={cardRef}
             onDoubleClick={handleDoubleClick}
+            onMouseDown={(event) => handleOnMouseDown(event)}
         >
             {isEditText && (
                 <input
+                    className={styles.input}
                     type="text"
                     value={inputText}
                     ref={inputRef}

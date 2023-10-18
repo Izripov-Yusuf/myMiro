@@ -1,91 +1,54 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import styles from './App.module.scss';
 import classnames from 'classnames';
 import Card from './components/Card/Card';
 import { incrementId } from './utils/incrementId';
 
-interface CardComponents {
+export interface UpdateCardPositionParams {
     id: number;
-    clientX: number;
-    clientY: number;
+    position: { positionX: number; positionY: number };
+}
+interface Card {
+    id: number;
+    positionX: number;
+    positionY: number;
 }
 
 function App() {
     const [isCreateMode, setIsCreateMode] = useState(false);
-    const [cards, setCards] = useState<CardComponents[]>([]);
-    const [isDragging, setIsDragging] = useState(false);
-
-    const currentId = useRef<number>();
-    const containerRef = useRef<HTMLDivElement>(null);
-    const coords = useRef<{
-        startY: number;
-        startX: number;
-    }>({
-        startY: 0,
-        startX: 0,
-    });
+    const [cards, setCards] = useState<Card[]>([]);
 
     const handleClick = (event: React.MouseEvent) => {
         if (!isCreateMode) return;
 
-        setCards((prev) => [...prev, { id: incrementId(), clientX: event.clientX, clientY: event.clientY }]);
+        setCards((prev) => [...prev, { id: incrementId(), positionX: event.clientX, positionY: event.clientY }]);
         setIsCreateMode(!isCreateMode);
     };
 
-    const handleOnMouseDown = (event: MouseEvent, id: number) => {
-        event.preventDefault();
-        setIsDragging(true);
-        currentId.current = id;
-        coords.current.startY = event.clientY;
-        coords.current.startX = event.clientX;
+    const updateCardPosition = ({ id, position }: UpdateCardPositionParams) => {
+        setCards((prev) =>
+            prev.map((card) =>
+                card.id === id ? { ...card, positionY: position.positionY, positionX: position.positionX } : card,
+            ),
+        );
     };
-
-    const handleOnMouseUp = () => {
-        setIsDragging(false);
-        currentId.current = undefined;
-    };
-
-    useEffect(() => {
-        if (!containerRef.current) return;
-
-        const container = containerRef.current;
-
-        const handleMouseMove = (event: MouseEvent) => {
-            if (!isDragging) return;
-
-            setCards((prev) =>
-                prev.map((card) =>
-                    card.id === currentId.current ? { ...card, clientY: event.clientY, clientX: event.clientX } : card,
-                ),
-            );
-        };
-
-        container.addEventListener('mousemove', handleMouseMove);
-
-        const cleanup = () => {
-            container.removeEventListener('mousemove', handleMouseMove);
-        };
-        return cleanup;
-    }, [cards, isDragging]);
 
     return (
         <main className={classnames(styles.main, isCreateMode && styles.mainCreateMode)} onClick={handleClick}>
-            <div className={styles.container} ref={containerRef}>
+            <div className={styles.container}>
                 <button className={styles.button} onClick={() => setIsCreateMode(!isCreateMode)}>
                     + Create card
                 </button>
+                {cards.map(({ positionX, positionY, id }) => (
+                    <Card
+                        key={id}
+                        id={id}
+                        positionX={positionX}
+                        positionY={positionY}
+                        updateCardPosition={updateCardPosition}
+                    />
+                ))}
             </div>
-            {cards.map(({ clientX, clientY, id }) => (
-                <Card
-                    key={id}
-                    id={id}
-                    clientX={clientX}
-                    clientY={clientY}
-                    isDragging={isDragging}
-                    handleOnMouseDown={handleOnMouseDown}
-                    handleOnMouseUp={handleOnMouseUp}
-                />
-            ))}
         </main>
     );
 }
