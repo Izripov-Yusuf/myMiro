@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import styles from './App.module.scss';
 import classnames from 'classnames';
 import Card from './components/Card/Card';
+import usePan from './hooks/usePan';
+import useScale from './hooks/useScale'
 import { incrementId } from './utils/incrementId';
 
 export interface UpdateCardPositionParams {
@@ -15,8 +17,13 @@ interface Card {
 }
 
 function App() {
+    const [offset, startPan] = usePan();
+
     const [isCreateMode, setIsCreateMode] = useState(false);
     const [cards, setCards] = useState<Card[]>([]);
+
+    const ref = useRef<HTMLDivElement | null>(null);
+    const scale = useScale(ref);
 
     const handleClick = (event: React.MouseEvent) => {
         if (!isCreateMode) return;
@@ -35,10 +42,17 @@ function App() {
 
     return (
         <main className={classnames(styles.main, isCreateMode && styles.mainCreateMode)} onClick={handleClick}>
-            <div className={styles.container}>
-                <button className={styles.button} onClick={() => setIsCreateMode(!isCreateMode)}>
-                    + Create card
-                </button>
+            <button className={styles.button} onClick={() => setIsCreateMode(!isCreateMode)}>
+                + Create card
+            </button>
+            <span>{JSON.stringify(offset)}</span>
+            <span>{scale}</span>
+            <div
+                className={styles.container}
+                onMouseDown={startPan}
+                ref={ref}
+                style={{transform: `scale(${scale}) translate(${-offset.x}px, ${-offset.y}px)`}}
+            >
                 {cards.map(({ positionX, positionY, id }) => (
                     <Card
                         key={id}
