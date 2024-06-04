@@ -22,8 +22,8 @@ export default function usePan(): [Point, (e: SyntheticMouseEvent) => void] {
 
         setPanState((panState) => {
             const delta = {
-                x: lastPoint.x - point.x,
-                y: lastPoint.y - point.y
+                x: point.x - lastPoint.x,
+                y: point.y - lastPoint.y
             }
             const offset = {
                 x: panState.x + delta.x,

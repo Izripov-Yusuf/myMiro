@@ -1,4 +1,4 @@
-import { RefObject, useState } from 'react';
+import { useState } from 'react';
 import useEventListener from './useEventListener';
 
 type ScaleOpts = {
@@ -13,7 +13,7 @@ const MAX_SCALE = 3;
  * Listen for `wheel` events on the given element ref and update the reported
  * scale state, accordingly.
  */
-export default function useScale(ref: RefObject<HTMLElement | null>) {
+export default function useScale() {
     const [scale, setScale] = useState(1);
 
     const updateScale = ({ direction, interval }: ScaleOpts) => {        
@@ -38,11 +38,11 @@ export default function useScale(ref: RefObject<HTMLElement | null>) {
     };
 
     // Set up an event listener such that on `wheel`, we call `updateScale`.
-    useEventListener(ref.current as HTMLElement, 'wheel', (e: any) => {
+    useEventListener(document, 'wheel', (e: any) => {
         e.preventDefault();
 
         updateScale({
-            direction: e.deltaY > 0 ? 'up' : 'down',
+            direction: e.deltaY < 0 ? 'up' : 'down',
             interval: 0.1,
         });
     });

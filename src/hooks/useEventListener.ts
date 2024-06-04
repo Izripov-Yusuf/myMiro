@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 
 export default function useEventListener(
-    element: HTMLElement | Window,
+    element: Document,
     eventType: string,
     callback: (e: Event) => void,
 ) {
