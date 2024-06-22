@@ -52,7 +52,7 @@ function App() {
                 className={styles.container}
                 onMouseDown={startPan}
             />
-            <div className={styles.cardsWrapper} style={{ transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`, transformOrigin: `${mouseCoords.x}px ${mouseCoords.y}px` }}>
+            <div className={styles.cardsWrapper} style={{ transformOrigin: `${mouseCoords.x}px ${mouseCoords.y}px`, transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})` }}>
                 {cards.map(({ positionX, positionY, id }) => (
                     <Card
                         key={id}
