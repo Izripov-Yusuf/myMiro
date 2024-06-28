@@ -38,7 +38,7 @@ export default function useScale() {
     };
 
     // Set up an event listener such that on `wheel`, we call `updateScale`.
-    useEventListener(document, 'wheel', (e: any) => {
+    useEventListener(document, 'wheel', (e) => {
         e.preventDefault();
 
         updateScale({

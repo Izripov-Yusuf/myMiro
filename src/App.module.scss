@@ -1,35 +1,36 @@
 .main {
-    height: 100%;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
+  height: 100%;
 }
 
 .main::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
 
 .mainCreateMode {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .container {
-    position: absolute;
-    top: 100px;
-    right: 0;
-    bottom: 0;
-    left: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
 }
 
 .cardsWrapper {
-    width: 0;
-    height: 0;
+  width: 0;
+  height: 0;
 }
 
 .button {
-    width: fit-content;
-    padding: 15px;
-    background-color: blanchedalmond;
-    border-radius: 4px;
-    font-size: 16px;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: fit-content;
+  padding: 15px;
+  background-color: blanchedalmond;
+  border-radius: 4px;
+  font-size: 16px;
+  z-index: 1;
 }

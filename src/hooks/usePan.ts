@@ -29,7 +29,6 @@ export default function usePan(): [Point, (e: SyntheticMouseEvent) => void] {
                 x: panState.x + delta.x,
                 y: panState.y + delta.y
             }
-            console.log('offset', offset)
 
             return offset
         })
