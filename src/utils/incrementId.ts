@@ -1,4 +1,4 @@
-let count = 0
+let count = 0;
 export function incrementId() {
-    return ++count
+    return ++count;
 }
