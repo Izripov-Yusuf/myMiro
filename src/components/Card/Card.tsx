@@ -15,13 +15,12 @@ const Card: React.FC<CardProps> = memo(({ id, positionX, positionY, scale, updat
     const [isEditText, setIsEditText] = useState(false);
     const [inputText, setInputText] = useState('');
     const [isDragging, setIsDragging] = useState(false);
-    const [tempPosition, setTempPosition] = useState({ positionX, positionY })
+    const [tempPosition, setTempPosition] = useState({ positionX, positionY });
 
     const inputRef = useRef<HTMLInputElement>(null);
     const cardRef = useRef<HTMLDivElement>(null);
-    const tempPositionRef = useRef({ positionX, positionY });
-    const latestTempPosition = useLatest(tempPosition)
-    const coords = useRef({ startX: positionX, startY: positionY });
+    const tempPositionRef = useLatest(tempPosition);
+    const initialMouseCoords = useRef({ x: 0, y: 0 });
 
     const handleDoubleClick = () => {
         setIsEditText(true);
@@ -32,26 +31,26 @@ const Card: React.FC<CardProps> = memo(({ id, positionX, positionY, scale, updat
         setIsDragging(true);
         setIsEditText(false);
 
-        const offsetX = event.clientX - positionX;
-        const offsetY = event.clientY - positionY;
-
-        coords.current.startX = offsetX;
-        coords.current.startY = offsetY;
+        initialMouseCoords.current = {
+            x: event.clientX - positionX * scale,
+            y: event.clientY - positionY * scale,
+        };
     };
 
     useEffect(() => {
         const handleMouseMove = (event: MouseEvent) => {
             if (!isDragging) return;
 
-            const newY = event.clientY - coords.current.startY;
-            const newX = event.clientX - coords.current.startX;
+            const newY = (event.clientY - initialMouseCoords.current.y) / scale;
+            const newX = (event.clientX - initialMouseCoords.current.x) / scale;
             const newPosition = { positionY: newY, positionX: newX };
-            setTempPosition(newPosition)
+            setTempPosition(newPosition);
         };
 
         const handleOnMouseUp = () => {
-            updateCardPosition({ id, position: latestTempPosition.current });
+            updateCardPosition({ id, position: tempPositionRef.current });
             tempPositionRef.current = { positionX: 0, positionY: 0 };
+            setTempPosition({ positionX: 0, positionY: 0 });
             setIsDragging(false);
         };
 
@@ -68,7 +67,7 @@ const Card: React.FC<CardProps> = memo(({ id, positionX, positionY, scale, updat
             document.removeEventListener('mousemove', handleMouseMove);
             document.removeEventListener('mouseup', handleOnMouseUp);
         };
-    }, [isDragging]);
+    }, [isDragging, scale]);
 
     useEffect(() => {
         if (isEditText) inputRef.current?.focus();
