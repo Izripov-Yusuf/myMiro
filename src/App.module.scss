@@ -1,9 +1,6 @@
 .main {
   height: 100%;
-}
-
-.main::-webkit-scrollbar {
-  display: none;
+  overflow: hidden;
 }
 
 .mainCreateMode {

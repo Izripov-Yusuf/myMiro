@@ -12,7 +12,7 @@ export default function usePan(): [Point, (e: SyntheticMouseEvent) => void] {
 
     const pan = useCallback((e: MouseEvent) => {
         const lastPoint = lastPointRef.current;
-        const point = { x: e.pageX, y: e.pageY };
+        const point = { x: e.clientX, y: e.clientY };
         lastPointRef.current = point;
 
         setPanState((panState) => {
@@ -38,7 +38,7 @@ export default function usePan(): [Point, (e: SyntheticMouseEvent) => void] {
         (e: SyntheticMouseEvent) => {
             document.addEventListener('mousemove', pan);
             document.addEventListener('mouseup', endPan);
-            lastPointRef.current = { x: e.pageX, y: e.pageY };
+            lastPointRef.current = { x: e.clientX, y: e.clientY };
         },
         [pan, endPan],
     );
