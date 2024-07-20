@@ -5,7 +5,6 @@ import Card from './components/Card/Card';
 import usePan from './hooks/usePan';
 import useScale from './hooks/useScale';
 import { incrementId } from './utils/incrementId';
-import useMouseCoords from './hooks/useMouseCoords';
 
 export interface UpdateCardPositionParams {
     id: number;
@@ -18,13 +17,12 @@ interface Card {
 }
 
 function App() {
-    const [offset, startPan] = usePan();
+    const [offset, startPan, setOffset] = usePan();
 
     const [isCreateMode, setIsCreateMode] = useState(false);
     const [cards, setCards] = useState<Card[]>([]);
 
-    const scale = useScale();
-    const mouseCoords = useMouseCoords();
+    const scale = useScale(offset, setOffset);
 
     const handleClick = (event: React.MouseEvent) => {
         if (!isCreateMode) return;
@@ -62,8 +60,8 @@ function App() {
             <div
                 className={styles.cardsWrapper}
                 style={{
-                    transformOrigin: `${mouseCoords.x}px ${mouseCoords.y}px`,
                     transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+                    transformOrigin: 'top left',
                 }}
             >
                 {cards.map(({ positionX, positionY, id }) => (

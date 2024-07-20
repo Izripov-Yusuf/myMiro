@@ -5,7 +5,7 @@ type Point = { x: number; y: number };
 // const ORIGIN = Object.freeze({ x: 0, y: 0 });
 const ORIGIN = { x: 0, y: 0 };
 
-export default function usePan(): [Point, (e: SyntheticMouseEvent) => void] {
+export default function usePan() {
     const [panState, setPanState] = useState<Point>(ORIGIN);
 
     const lastPointRef = useRef(ORIGIN);
@@ -43,5 +43,5 @@ export default function usePan(): [Point, (e: SyntheticMouseEvent) => void] {
         [pan, endPan],
     );
 
-    return [panState, startPan];
+    return [panState, startPan, setPanState] as const;
 }

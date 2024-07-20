@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 
 export default function useEventListener<EventType extends keyof DocumentEventMap>(
     element: Document,
@@ -7,7 +7,7 @@ export default function useEventListener<EventType extends keyof DocumentEventMa
 ) {
     const callbackRef = useRef(callback);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         callbackRef.current = callback;
     }, [callback]);
 
