@@ -27,17 +27,8 @@ function App() {
     const handleClick = (event: React.MouseEvent) => {
         if (!isCreateMode) return;
 
-        console.log('event.clientX', event.clientX);
-        console.log('event.clientY', event.clientY);
-        console.log('offset.x', offset.x);
-        console.log('offset.y', offset.y);
-        console.log('scale', scale);
-
         const x = (event.clientX - offset.x) / scale;
         const y = (event.clientY - offset.y) / scale;
-
-        console.log('x', x);
-        console.log('y', y);
 
         setCards((prev) => [...prev, { id: incrementId(), positionX: x, positionY: y }]);
         setIsCreateMode(!isCreateMode);
