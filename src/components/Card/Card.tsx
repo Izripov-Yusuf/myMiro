@@ -1,28 +1,29 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, memo } from 'react';
 import styles from './Card.module.scss';
 import { UpdateCardPositionParams } from '../../App';
+import { useLatest } from '../../hooks/useLatest';
 
 interface CardProps {
     positionX: number;
     positionY: number;
     id: number;
+    scale: number;
     updateCardPosition: ({ id, position }: UpdateCardPositionParams) => void;
 }
 
-const Card: React.FC<CardProps> = ({ id, positionX, positionY, updateCardPosition }) => {
+const Card: React.FC<CardProps> = memo(({ id, positionX, positionY, scale, updateCardPosition }) => {
     const [isEditText, setIsEditText] = useState(false);
     const [inputText, setInputText] = useState('');
     const [isDragging, setIsDragging] = useState(false);
-    const [tempPosition, setTempPosition] = useState(() => {
-        return { positionX, positionY };
-    });
+    const [tempPosition, setTempPosition] = useState<{
+        x: number;
+        y: number;
+    } | null>(null);
 
     const inputRef = useRef<HTMLInputElement>(null);
     const cardRef = useRef<HTMLDivElement>(null);
-    const coords = useRef({
-        startX: positionX,
-        startY: positionY,
-    });
+    const tempPositionRef = useLatest(tempPosition);
+    const initialMouseCoords = useRef({ x: 0, y: 0 });
 
     const handleDoubleClick = () => {
         setIsEditText(true);
@@ -33,61 +34,63 @@ const Card: React.FC<CardProps> = ({ id, positionX, positionY, updateCardPositio
         setIsDragging(true);
         setIsEditText(false);
 
-        const offsetX = event.clientX - tempPosition.positionX;
-        const offsetY = event.clientY - tempPosition.positionY;
-
-        coords.current.startX = offsetX;
-        coords.current.startY = offsetY;
-    };
-
-    const handleOnMouseUp = () => {
-        setIsDragging(false);
-        updateCardPosition({ id, position: tempPosition });
+        initialMouseCoords.current = {
+            x: event.clientX - positionX * scale,
+            y: event.clientY - positionY * scale,
+        };
     };
 
     useEffect(() => {
+        if (!isDragging) return;
         const handleMouseMove = (event: MouseEvent) => {
-            if (!isDragging) return;
-
-            const newY = event.clientY - coords.current.startY;
-            const newX = event.clientX - coords.current.startX;
-            setTempPosition({
-                positionY: newY,
-                positionX: newX,
-            });
+            const newY = (event.clientY - initialMouseCoords.current.y) / scale;
+            const newX = (event.clientX - initialMouseCoords.current.x) / scale;
+            const newPosition = { y: newY, x: newX };
+            setTempPosition(newPosition);
         };
 
-        if (!isDragging) {
-            document.removeEventListener('mousemove', handleMouseMove);
-            document.removeEventListener('mouseup', handleOnMouseUp);
-            return;
-        }
+        const handleOnMouseUp = () => {
+            if (tempPositionRef.current) {
+                updateCardPosition({
+                    id,
+                    position: {
+                        positionX: tempPositionRef.current.x,
+                        positionY: tempPositionRef.current.y,
+                    },
+                });
+            }
+
+            setTempPosition(null);
+            setIsDragging(false);
+        };
 
         document.addEventListener('mousemove', handleMouseMove);
         document.addEventListener('mouseup', handleOnMouseUp);
 
-        const cleanup = () => {
+        return () => {
             document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleOnMouseUp);
         };
-        return cleanup;
-    }, [isDragging]);
+    }, [isDragging, scale]);
 
     useEffect(() => {
-        if (!isEditText) return;
-        inputRef.current?.focus();
+        if (isEditText) inputRef.current?.focus();
     }, [isEditText]);
+
+    const cardPositionX = tempPosition ? tempPosition.x : positionX;
+    const cardPositionY = tempPosition ? tempPosition.y : positionY;
 
     return (
         <div
             style={{
-                top: `${tempPosition.positionY}px`,
-                left: `${tempPosition.positionX}px`,
+                top: `${cardPositionY}px`,
+                left: `${cardPositionX}px`,
                 cursor: isDragging ? 'grabbing' : 'grab',
             }}
             className={styles.box}
             ref={cardRef}
             onDoubleClick={handleDoubleClick}
-            onMouseDown={(event) => handleOnMouseDown(event)}
+            onMouseDown={handleOnMouseDown}
         >
             {isEditText && (
                 <input
@@ -101,6 +104,6 @@ const Card: React.FC<CardProps> = ({ id, positionX, positionY, updateCardPositio
             {inputText && !isEditText && <span>{inputText}</span>}
         </div>
     );
-};
+});
 
 export default Card;

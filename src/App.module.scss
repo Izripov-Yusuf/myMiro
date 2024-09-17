@@ -1,22 +1,33 @@
 .main {
-    height: 100%;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 }
 
 .mainCreateMode {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .container {
-    position: relative;
-    flex: 1;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.cardsWrapper {
+  width: 0;
+  height: 0;
 }
 
 .button {
-    padding: 15px;
-    background-color: blanchedalmond;
-    border-radius: 4px;
-    font-size: 16px;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: fit-content;
+  padding: 15px;
+  background-color: blanchedalmond;
+  border-radius: 4px;
+  font-size: 16px;
+  z-index: 1;
 }
